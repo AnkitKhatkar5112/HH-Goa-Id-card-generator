@@ -2213,6 +2213,22 @@ a { color: inherit; }
   color: var(--off-white);
   line-height: 1.5;
 }
+.share-tip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--yellow-primary);
+  margin-top: var(--space-2);
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+.share-tip kbd {
+  background: rgba(245, 211, 0, 0.15);
+  border: 1px solid var(--yellow-primary);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
 
 .share-apps-grid {
   display: grid;

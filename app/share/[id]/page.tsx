@@ -7,6 +7,8 @@ interface SharePageProps {
   params: Promise<{ id: string }>;
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://hh-goa-2026-builder-one.vercel.app";
+
 export async function generateMetadata({
   params,
 }: SharePageProps): Promise<Metadata> {
@@ -15,8 +17,14 @@ export async function generateMetadata({
 
   if (!decoded) {
     return {
+      metadataBase: new URL(siteUrl),
       title: "HH Goa 2026",
       description: "Create your HH Goa 2026 PFP frame or Builder ID!",
+      openGraph: {
+        title: "HH Goa 2026 Builder Studio",
+        description: "Create your HH Goa 2026 PFP frame or Builder ID!",
+        images: ["/assets/details.png"],
+      },
     };
   }
 
@@ -30,7 +38,10 @@ export async function generateMetadata({
       ? "Check out my Builder ID for HH Goa 2026! Get yours →"
       : "Check out my HH Goa 2026 PFP frame! Get yours →";
 
+  const validImage = imageUrl && !imageUrl.startsWith("blob:") ? imageUrl : `${siteUrl}/assets/details.png`;
+
   return {
+    metadataBase: new URL(siteUrl),
     title,
     description,
     openGraph: {
@@ -39,7 +50,7 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: imageUrl,
+          url: validImage,
           width: mode === "card" ? 1080 : 1080,
           height: mode === "card" ? 1350 : 1080,
           alt: title,
@@ -50,7 +61,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [imageUrl],
+      images: [validImage],
     },
   };
 }

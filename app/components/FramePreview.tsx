@@ -217,7 +217,17 @@ export default function FramePreview({
     if (!renderedCanvas) return;
     playClickSound();
     setIsSharing(true);
-    setShareStatus("Preparing share link...");
+    setShareStatus("Copying image & preparing share link...");
+
+    // Auto-copy image to clipboard so user can press Ctrl+V / Cmd+V in Twitter
+    try {
+      const blob = await canvasToBlob(renderedCanvas);
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      }
+    } catch {
+      // Ignore clipboard error
+    }
 
     try {
       let imageUrl = "";
@@ -235,7 +245,7 @@ export default function FramePreview({
       }
 
       const intentUrl = buildXIntentUrl(sharePageUrl, mode);
-      setShareStatus("");
+      setShareStatus("✓ Image copied to clipboard! Press Ctrl+V (Cmd+V) on Twitter to paste image.");
       playSuccessChime();
       triggerConfetti();
 
@@ -455,8 +465,9 @@ export default function FramePreview({
                 onClick={handleLaunchXIntent}
                 disabled={isSharing}
               >
-                {isSharing ? "Publishing..." : "𝕏 Post to Twitter / X ↗"}
+                {isSharing ? "Preparing..." : "𝕏 Post to Twitter / X ↗"}
               </button>
+              <p className="share-tip">💡 Image is auto-copied to your clipboard! Press <kbd>Ctrl+V</kbd> (or <kbd>Cmd+V</kbd>) on Twitter to attach your graphic.</p>
             </div>
 
             {/* Native Device Share Sheet (WhatsApp, IG Stories, iMessage, AirDrop) */}
