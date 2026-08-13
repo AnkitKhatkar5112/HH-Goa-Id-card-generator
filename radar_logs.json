@@ -1,5 +1,14 @@
 [
   {
+    "id": "72fadf9b-d38d-41c3-885a-fe32902a3600",
+    "time": "7:49 PM",
+    "timestamp": 1786630784685,
+    "user": "@builder",
+    "action": "generated Builder ID",
+    "badge": "🪪 ID",
+    "title": "Low-Latency Feni Sommelier"
+  },
+  {
     "id": "97848ef2-7a07-42fd-ab94-de39a92e082c",
     "time": "5:42 PM",
     "timestamp": 1786623120464,
@@ -439,14 +448,5 @@
     "action": "triggered vibe pad",
     "badge": "🔊 VIBE",
     "title": "🥥 Coconut Hack"
-  },
-  {
-    "id": "3fa8e766-882a-4c8b-ad6e-e6921ff4c0d1",
-    "time": "4:24 PM",
-    "timestamp": 1786618485605,
-    "user": "@visitor",
-    "action": "triggered vibe pad",
-    "badge": "🔊 VIBE",
-    "title": "🌴 Beach Waves"
   }
 ]
