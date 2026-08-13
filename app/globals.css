@@ -1947,6 +1947,263 @@ a { color: inherit; }
   transform: translateX(-100%);
   animation: shimmer 1.2s infinite;
 }
+
+/* ================================================================
+   NEW FEATURE STYLES (5 CORE IMPROVEMENTS)
+   ================================================================ */
+
+/* Feature 1: Camera Snapshot Modal */
+.sample-btn--camera {
+  background: var(--pink-neon);
+  color: var(--off-white);
+  border-color: var(--pink-neon);
+  font-weight: bold;
+}
+.sample-btn--camera:hover {
+  background: var(--yellow-primary);
+  color: var(--ink-dark);
+  border-color: var(--yellow-primary);
+}
+
+.camera-modal {
+  width: 520px;
+  max-width: 95vw;
+}
+.camera-modal__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  color: var(--yellow-primary);
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+  letter-spacing: 0.08em;
+}
+.camera-preview-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border: 2px solid var(--yellow-primary);
+  overflow: hidden;
+  margin-bottom: var(--space-4);
+}
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.camera-video--mirror {
+  transform: scaleX(-1);
+}
+.camera-reticle {
+  position: absolute;
+  inset: 15%;
+  border: 1px dashed rgba(245, 211, 0, 0.4);
+  pointer-events: none;
+}
+.camera-reticle::before,
+.camera-reticle::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--pink-neon);
+  border-style: solid;
+}
+.camera-reticle::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+.camera-reticle::after { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+
+.camera-controls {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  width: 100%;
+}
+.camera-error {
+  font-family: var(--font-mono);
+  color: var(--pink-neon);
+  background: rgba(255, 46, 147, 0.1);
+  border: 1px solid var(--pink-neon);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* Feature 2: 1-Click Tech Stack Chips */
+.tech-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.tech-chip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: var(--space-1) var(--space-2);
+  background: rgba(243, 236, 216, 0.04);
+  color: var(--off-white-dim);
+  border: 1px solid rgba(243, 236, 216, 0.15);
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+.tech-chip:hover {
+  border-color: var(--yellow-primary);
+  color: var(--yellow-primary);
+}
+.tech-chip--active {
+  background: var(--yellow-primary);
+  color: var(--ink-dark);
+  border-color: var(--yellow-primary);
+  font-weight: bold;
+}
+
+/* Feature 3: Card Theme Presets & Photo Mirror */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+.theme-chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  padding: var(--space-2);
+  background: rgba(243, 236, 216, 0.03);
+  color: var(--off-white-dim);
+  border: 1px solid rgba(243, 236, 216, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: 3px;
+  transition: all 0.25s var(--ease-cinematic);
+}
+.theme-chip__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.theme-chip:hover {
+  border-color: var(--yellow-primary);
+  color: var(--yellow-primary);
+}
+.theme-chip--active {
+  background: var(--pink-neon);
+  color: var(--off-white);
+  border-color: var(--pink-neon);
+  font-weight: bold;
+}
+
+.btn-mirror {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 2px var(--space-2);
+  background: rgba(243, 236, 216, 0.05);
+  color: var(--yellow-primary);
+  border: 1px solid rgba(245, 211, 0, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-mirror:hover,
+.btn-mirror--active {
+  background: var(--yellow-primary);
+  color: var(--ink-dark);
+}
+
+/* Feature 4: 3D Holographic Tilt Sheen & Resolution Selector */
+.preview-canvas-wrap--3d {
+  perspective: 1000px;
+  transform: perspective(1000px) rotateX(var(--tilt-rx, 0deg)) rotateY(var(--tilt-ry, 0deg));
+  transition: transform 0.1s ease-out;
+  transform-style: preserve-3d;
+}
+.hologram-sheen {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--sheen-x, 50%) var(--sheen-y, 50%),
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(0, 240, 255, 0.1) 30%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: overlay;
+  opacity: 0.7;
+}
+
+.preview-header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.scale-toggle {
+  display: flex;
+  background: rgba(243, 236, 216, 0.05);
+  border: 1px solid rgba(243, 236, 216, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.scale-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  background: transparent;
+  color: var(--off-white-dim);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.scale-btn--active {
+  background: var(--yellow-primary);
+  color: var(--ink-dark);
+  font-weight: bold;
+}
+
+/* Feature 5: X / Twitter Share Modal */
+.share-modal {
+  width: 540px;
+  max-width: 95vw;
+}
+.share-modal__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  color: var(--yellow-primary);
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+}
+.share-modal__sub {
+  font-size: var(--text-xs);
+  color: var(--off-white-dim);
+  margin-bottom: var(--space-4);
+}
+.tweet-preview-box {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(245, 211, 0, 0.3);
+  padding: var(--space-4);
+  border-radius: 4px;
+  margin-bottom: var(--space-4);
+  white-space: pre-wrap;
+}
+.tweet-preview-text {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--off-white);
+  line-height: 1.5;
+}
+.share-modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  width: 100%;
+}
+
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
