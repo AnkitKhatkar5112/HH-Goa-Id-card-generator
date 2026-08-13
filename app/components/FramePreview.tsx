@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { renderPfpFrame, renderIdCard, renderTeamFrame } from "../lib/frameRenderer";
-import { canvasToBlob, downloadBlob } from "../lib/imageUtils";
+import { renderPfpFrame, renderIdCard, renderTeamFrame, PhotoFilter } from "../lib/frameRenderer";
+import { canvasToBlob, downloadBlob, triggerConfetti } from "../lib/imageUtils";
+import { playClickSound, playSuccessChime } from "../lib/audioUtils";
 import {
   uploadToCloudinary,
   encodeShareId,
@@ -16,6 +17,8 @@ interface FramePreviewProps {
   name: string;
   stack: string;
   builderTitle: string;
+  filter?: PhotoFilter;
+  badge?: string;
 }
 
 export default function FramePreview({
@@ -24,14 +27,18 @@ export default function FramePreview({
   name,
   stack,
   builderTitle,
+  filter = "none",
+  badge = "",
 }: FramePreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [renderedCanvas, setRenderedCanvas] = useState<HTMLCanvasElement | null>(null);
   const [isRendering, setIsRendering] = useState(true);
   const [isSharing, setIsSharing] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
+  const [copiedStatus, setCopiedStatus] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Render the frame/card on mount
+  // Render the frame/card on mount & when props change
   useEffect(() => {
     if (!imageSrcs || imageSrcs.length === 0) return;
 
@@ -43,11 +50,11 @@ export default function FramePreview({
         let result: HTMLCanvasElement;
 
         if (mode === "frame") {
-          result = await renderPfpFrame(imageSrcs[0]);
+          result = await renderPfpFrame(imageSrcs[0], filter, badge);
         } else if (mode === "card") {
-          result = await renderIdCard(imageSrcs[0], name, stack, builderTitle);
+          result = await renderIdCard(imageSrcs[0], name, stack, builderTitle, filter, badge);
         } else {
-          result = await renderTeamFrame(imageSrcs);
+          result = await renderTeamFrame(imageSrcs, filter, badge);
         }
 
         if (cancelled) return;
@@ -72,55 +79,101 @@ export default function FramePreview({
     return () => {
       cancelled = true;
     };
-  }, [imageSrcs, mode, name, stack, builderTitle]);
+  }, [imageSrcs, mode, name, stack, builderTitle, filter, badge]);
 
   // Download handler
   const handleDownload = useCallback(async () => {
     if (!renderedCanvas) return;
+    playClickSound();
 
     const blob = await canvasToBlob(renderedCanvas);
     let filename = "hh-goa-2026-frame.png";
     if (mode === "card") filename = "hh-goa-2026-builder-id.png";
     if (mode === "team") filename = "hh-goa-2026-team-frame.png";
-    
+
     downloadBlob(blob, filename);
+    playSuccessChime();
+    triggerConfetti();
   }, [renderedCanvas, mode]);
+
+  // Copy to Clipboard handler
+  const handleCopy = useCallback(async () => {
+    if (!renderedCanvas) return;
+    playClickSound();
+
+    try {
+      const blob = await canvasToBlob(renderedCanvas);
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        setCopiedStatus(true);
+        playSuccessChime();
+        triggerConfetti();
+        setTimeout(() => setCopiedStatus(false), 2500);
+      } else {
+        setShareStatus("Clipboard copy not supported on this browser.");
+      }
+    } catch {
+      setShareStatus("Could not copy to clipboard.");
+    }
+  }, [renderedCanvas]);
 
   // Share to X handler
   const handleShareToX = useCallback(async () => {
     if (!renderedCanvas) return;
+    playClickSound();
 
     setIsSharing(true);
-    setShareStatus("Uploading image…");
+    setShareStatus("Uploading graphics to cloud...");
 
     try {
       const blob = await canvasToBlob(renderedCanvas);
       const imageUrl = await uploadToCloudinary(blob);
 
-      // Build share page URL
       const shareId = encodeShareId(imageUrl, mode);
       const baseUrl = getBaseUrl();
       const sharePageUrl = `${baseUrl}/share/${shareId}`;
 
-      // Build X intent
       const intentUrl = buildXIntentUrl(sharePageUrl, mode);
 
       setShareStatus("");
+      playSuccessChime();
+      triggerConfetti();
 
-      // Open X intent
       window.open(intentUrl, "_blank", "noopener,noreferrer");
     } catch (err) {
       console.error("Share failed:", err);
-      setShareStatus("Upload failed — try downloading instead");
+      setShareStatus("Cloud upload failed — use Download instead!");
     } finally {
       setIsSharing(false);
     }
   }, [renderedCanvas, mode]);
 
   return (
-    <div className="preview-section">
-      {/* Canvas preview */}
-      <div className="preview-canvas-wrap">
+    <div className="preview-section fade-in-up">
+      {/* Canvas Header Tag */}
+      <div className="preview-card-header">
+        <span className="live-pill">● LIVE ENGINE PREVIEW</span>
+        <button
+          type="button"
+          className="zoom-btn"
+          onClick={() => {
+            playClickSound();
+            setIsFullscreen(true);
+          }}
+          title="Fullscreen view"
+        >
+          🔍 Expand
+        </button>
+      </div>
+
+      {/* Canvas preview wrap */}
+      <div
+        className="preview-canvas-wrap"
+        onClick={() => setIsFullscreen(true)}
+        role="button"
+        tabIndex={0}
+        aria-label="Click to enlarge preview"
+      >
         {isRendering && (
           <div className="shimmer" style={{ aspectRatio: mode === "frame" ? "1/1" : "4/5" }} />
         )}
@@ -129,31 +182,68 @@ export default function FramePreview({
           style={{ display: isRendering ? "none" : "block" }}
           id="preview-canvas"
         />
+        {!isRendering && <div className="hover-zoom-badge">Tap to inspect HD</div>}
       </div>
 
-      {/* Share status */}
-      {shareStatus && <div className="status-toast" style={{ marginTop: "var(--space-4)" }}>{shareStatus}</div>}
+      {/* Status Toasts */}
+      {shareStatus && <div className="status-toast" style={{ marginTop: "var(--space-3)" }}>{shareStatus}</div>}
+      {copiedStatus && <div className="status-toast status-toast--success" style={{ marginTop: "var(--space-3)" }}>✓ Copied high-res image to clipboard!</div>}
 
       {/* Action buttons */}
-      <div className="actions actions--row">
+      <div className="actions actions--column">
         <button
-          className="btn btn--full"
+          className="btn btn--primary btn--full btn--lg glow-pulse"
           onClick={handleDownload}
           disabled={isRendering || !renderedCanvas}
           id="download-btn"
         >
-          📥 Download
+          📥 Download High-Res Badge
         </button>
 
-        <button
-          className="btn btn--secondary btn--full"
-          onClick={handleShareToX}
-          disabled={isRendering || isSharing || !renderedCanvas}
-          id="share-x-btn"
-        >
-          {isSharing ? "Uploading…" : "𝕏 Share"}
-        </button>
+        <div className="actions--row">
+          <button
+            className="btn btn--secondary btn--full"
+            onClick={handleShareToX}
+            disabled={isRendering || isSharing || !renderedCanvas}
+            id="share-x-btn"
+          >
+            {isSharing ? "Uploading…" : "𝕏 Post to Twitter"}
+          </button>
+
+          <button
+            className="btn btn--ghost btn--full"
+            onClick={handleCopy}
+            disabled={isRendering || !renderedCanvas}
+            id="copy-btn"
+          >
+            {copiedStatus ? "✓ Copied" : "📋 Copy Image"}
+          </button>
+        </div>
       </div>
+
+      {/* Fullscreen Lightbox Modal */}
+      {isFullscreen && (
+        <div className="modal-backdrop" onClick={() => setIsFullscreen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setIsFullscreen(false)}>
+              ✕
+            </button>
+            <div className="modal-canvas-holder">
+              <canvas
+                ref={(node) => {
+                  if (node && renderedCanvas) {
+                    node.width = renderedCanvas.width;
+                    node.height = renderedCanvas.height;
+                    const ctx = node.getContext("2d");
+                    ctx?.drawImage(renderedCanvas, 0, 0);
+                  }
+                }}
+              />
+            </div>
+            <p className="modal-caption">HH Goa 2026 — 1080p Master Graphic</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

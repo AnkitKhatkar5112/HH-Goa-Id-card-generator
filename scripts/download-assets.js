@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
+
 
 const ASSETS = [
   'https://hhgoa.com/assets/Sun%20rise.png',

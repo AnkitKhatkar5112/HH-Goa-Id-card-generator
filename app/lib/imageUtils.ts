@@ -151,3 +151,97 @@ export function downloadBlob(blob: Blob, filename: string) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+
+/**
+ * Trigger lightweight cyber-tropical confetti burst effect on screen
+ */
+export function triggerConfetti() {
+  if (typeof window === "undefined") return;
+
+  const canvas = document.createElement("canvas");
+  canvas.style.position = "fixed";
+  canvas.style.top = "0";
+  canvas.style.left = "0";
+  canvas.style.width = "100vw";
+  canvas.style.height = "100vh";
+  canvas.style.pointerEvents = "none";
+  canvas.style.zIndex = "999999";
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ["#F5D300", "#FF2E93", "#0F3D2E", "#0B2A1F", "#F7F5EF"];
+  const particles: Array<{
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    vx: number;
+    vy: number;
+    color: string;
+    rot: number;
+    vRot: number;
+    alpha: number;
+  }> = [];
+
+  for (let i = 0; i < 75; i++) {
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 + 100,
+      w: Math.random() * 12 + 6,
+      h: Math.random() * 8 + 4,
+      vx: (Math.random() - 0.5) * 18,
+      vy: (Math.random() - 0.7) * 20 - 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * 360,
+      vRot: (Math.random() - 0.5) * 15,
+      alpha: 1,
+    });
+  }
+
+  let animationId: number;
+  const startTime = Date.now();
+
+  function render() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const elapsed = Date.now() - startTime;
+
+    particles.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.4; // gravity
+      p.rot += p.vRot;
+      if (elapsed > 1000) {
+        p.alpha -= 0.03;
+      }
+
+      if (p.alpha > 0) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+    });
+
+    if (elapsed < 2500) {
+      animationId = requestAnimationFrame(render);
+    } else {
+      cancelAnimationFrame(animationId);
+      if (document.body.contains(canvas)) {
+        document.body.removeChild(canvas);
+      }
+    }
+  }
+
+  render();
+}
+

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { decodeShareId } from "../../lib/shareUtils";
+
 
 interface SharePageProps {
   params: Promise<{ id: string }>;
@@ -14,7 +16,7 @@ export async function generateMetadata({
   if (!decoded) {
     return {
       title: "HH Goa 2026",
-      description: "Create your HH Goa 2026 frame or builder ID!",
+      description: "Create your HH Goa 2026 PFP frame or Builder ID!",
     };
   }
 
@@ -63,10 +65,13 @@ export default async function SharePage({ params }: SharePageProps) {
         <h1 className="brand-wordmark" style={{ marginBottom: "var(--space-4)" }}>
           HH Goa 2026
         </h1>
-        <p style={{ color: "var(--smoke)" }}>This share link is invalid or expired.</p>
-        <a href="/" className="btn btn--primary share-page__cta">
-          Create Your Own →
-        </a>
+        <p style={{ color: "var(--smoke)", fontFamily: "var(--font-pixel)", marginBottom: "var(--space-6)" }}>
+          This share link is invalid or expired.
+        </p>
+        <Link href="/" className="btn btn--primary">
+          ✨ Create Your Own Badge
+        </Link>
+
       </main>
     );
   }
@@ -75,9 +80,19 @@ export default async function SharePage({ params }: SharePageProps) {
 
   return (
     <main className="share-page">
-      <h1 className="brand-wordmark" style={{ marginBottom: "var(--space-6)" }}>
+      <h1 className="brand-wordmark" style={{ marginBottom: "var(--space-2)" }}>
         HH Goa 2026
       </h1>
+      <p
+        style={{
+          fontFamily: "var(--font-pixel)",
+          fontSize: "var(--text-lg)",
+          color: "var(--yellow-primary)",
+          marginBottom: "var(--space-6)",
+        }}
+      >
+        Official Builder Graphic
+      </p>
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -91,8 +106,8 @@ export default async function SharePage({ params }: SharePageProps) {
 
       <p
         style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-pixel)",
+          fontSize: "var(--text-lg)",
           color: "var(--sea-teal)",
           marginBottom: "var(--space-6)",
         }}
@@ -100,9 +115,10 @@ export default async function SharePage({ params }: SharePageProps) {
         $ built_in_goa // 2026
       </p>
 
-      <a href="/" className="btn btn--primary share-page__cta" id="create-own-btn">
-        ✨ Create Your Own
-      </a>
+      <Link href="/" className="btn btn--primary btn--lg glow-pulse" id="create-own-btn">
+        ✨ Build Your Own HH Goa Graphic
+      </Link>
+
     </main>
   );
 }
