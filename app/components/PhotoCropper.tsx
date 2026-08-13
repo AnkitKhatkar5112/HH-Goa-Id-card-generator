@@ -6,30 +6,36 @@ import type { Area } from "react-easy-crop";
 import { playClickSound } from "../lib/audioUtils";
 
 interface PhotoCropperProps {
-  imageSrc: string;
+  imageSrcs?: string[];
+  imageSrc?: string;
+  selectedIndex?: number;
+  onSelectIndex?: (index: number) => void;
   aspect: number;
   cropShape: "round" | "rect";
-  onCropComplete: (pixelCrop: { x: number; y: number; width: number; height: number }) => void;
+  onCropComplete: (pixelCrop: { x: number; y: number; width: number; height: number }, targetIndex?: number) => void;
   onDone?: () => void;
 }
 
 export default function PhotoCropper({
+  imageSrcs,
   imageSrc,
+  selectedIndex = 0,
+  onSelectIndex,
   aspect,
   cropShape,
   onCropComplete,
   onDone,
 }: PhotoCropperProps) {
+  const activeSrc = (imageSrcs && imageSrcs[selectedIndex]) || imageSrc || "";
+
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
+  const [lastPixels, setLastPixels] = useState<Area | null>(null);
 
-  const handleCropComplete = useCallback(
-    (_croppedArea: Area, croppedAreaPixels: Area) => {
-      onCropComplete(croppedAreaPixels);
-    },
-    [onCropComplete]
-  );
+  const handleCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    setLastPixels(croppedAreaPixels);
+  }, []);
 
   const handleReset = () => {
     playClickSound();
@@ -43,11 +49,48 @@ export default function PhotoCropper({
     setRotation((prev) => (prev + 90) % 360);
   };
 
+  const handleApply = () => {
+    playClickSound();
+    if (lastPixels) {
+      onCropComplete(lastPixels, selectedIndex);
+    }
+    if (onDone) {
+      onDone();
+    }
+  };
+
   return (
     <div className="cropper-wrapper fade-in-up">
+      {/* Team Member Photo Selector if multiple photos */}
+      {imageSrcs && imageSrcs.length > 1 && onSelectIndex && (
+        <div className="crop-member-bar" style={{ marginBottom: "var(--space-3)" }}>
+          <span className="cropper-controls__label">Select Member to Adjust:</span>
+          <div className="crop-member-chips" style={{ display: "flex", gap: "var(--space-2)", marginTop: "var(--space-1)" }}>
+            {imageSrcs.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`tech-chip ${selectedIndex === idx ? "tech-chip--active" : ""}`}
+                onClick={() => {
+                  playClickSound();
+                  if (lastPixels) {
+                    onCropComplete(lastPixels, selectedIndex);
+                  }
+                  onSelectIndex(idx);
+                  handleReset();
+                }}
+              >
+                👤 Member {idx + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className={`cropper-container ${cropShape === "rect" ? "cropper-container--card" : ""}`}>
         <Cropper
-          image={imageSrc}
+          key={`${selectedIndex}-${activeSrc}`}
+          image={activeSrc}
           crop={crop}
           zoom={zoom}
           rotation={rotation}
@@ -105,18 +148,13 @@ export default function PhotoCropper({
           >
             🎯 Reset
           </button>
-          {onDone && (
-            <button
-              type="button"
-              className="btn btn--primary btn--sm"
-              onClick={() => {
-                playClickSound();
-                onDone();
-              }}
-            >
-              ✓ Apply Crop
-            </button>
-          )}
+          <button
+            type="button"
+            className="btn btn--primary btn--sm glow-pulse"
+            onClick={handleApply}
+          >
+            ✓ Apply Position
+          </button>
         </div>
       </div>
 
@@ -126,3 +164,4 @@ export default function PhotoCropper({
     </div>
   );
 }
+

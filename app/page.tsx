@@ -39,6 +39,7 @@ export default function Home() {
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [exportScale, setExportScale] = useState<number>(1);
   const [cropActive, setCropActive] = useState(false);
+  const [cropIndex, setCropIndex] = useState(0);
 
   // ID Card Form State
   const [username, setUsername] = useState("");
@@ -134,6 +135,7 @@ export default function Home() {
     setBuilderTitle("");
     setTeamName("SQUAD ZERO");
     setCropActive(false);
+    setCropIndex(0);
   }, [imageSrcs]);
 
   const handleModeSwitch = useCallback(
@@ -152,13 +154,20 @@ export default function Home() {
     [step, imageSrcs]
   );
 
-  const handleCropComplete = async (pixelCrop: { x: number; y: number; width: number; height: number }) => {
-    if (imageSrcs.length === 0) return;
+  const handleCropComplete = async (
+    pixelCrop: { x: number; y: number; width: number; height: number },
+    targetIndex = 0
+  ) => {
+    if (imageSrcs.length === 0 || !imageSrcs[targetIndex]) return;
     try {
-      const croppedCanvas = await getCroppedImg(imageSrcs[0], pixelCrop);
+      const croppedCanvas = await getCroppedImg(imageSrcs[targetIndex], pixelCrop);
       const blob = await new Promise<Blob>((resolve) => croppedCanvas.toBlob((b) => resolve(b!), "image/png"));
       const croppedUrl = URL.createObjectURL(blob);
-      setImageSrcs((prev) => [croppedUrl, ...prev.slice(1)]);
+      setImageSrcs((prev) => {
+        const next = [...prev];
+        next[targetIndex] = croppedUrl;
+        return next;
+      });
     } catch (err) {
       console.error("Crop failed:", err);
     }
@@ -316,7 +325,10 @@ export default function Home() {
                         <span>✂️</span> Photo Position & Zoom
                       </h3>
                       <PhotoCropper
-                        imageSrc={imageSrcs[0]}
+                        imageSrcs={imageSrcs}
+                        imageSrc={imageSrcs[cropIndex] || imageSrcs[0]}
+                        selectedIndex={cropIndex}
+                        onSelectIndex={setCropIndex}
                         aspect={mode === "frame" ? 1 : 4 / 5}
                         cropShape={mode === "frame" ? "round" : "rect"}
                         onCropComplete={handleCropComplete}
