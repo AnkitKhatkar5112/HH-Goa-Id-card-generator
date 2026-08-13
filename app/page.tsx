@@ -13,7 +13,7 @@ import FilterStickerControls from "./components/FilterStickerControls";
 import PhotoCropper from "./components/PhotoCropper";
 
 import { processUploadedFile, getCroppedImg } from "./lib/imageUtils";
-import { PhotoFilter, getLiveTimeStudioString } from "./lib/frameRenderer";
+import { PhotoFilter, CardTheme, getLiveTimeStudioString } from "./lib/frameRenderer";
 import { isSoundEnabled, setSoundEnabled, playClickSound } from "./lib/audioUtils";
 import { useScrollReveal } from "./hooks/useScrollReveal";
 
@@ -35,6 +35,9 @@ export default function Home() {
   // Creative Studio Controls
   const [filter, setFilter] = useState<PhotoFilter>("none");
   const [badge, setBadge] = useState<string>("🌴 SUSEGAD");
+  const [cardTheme, setCardTheme] = useState<CardTheme>("forest");
+  const [isFlipped, setIsFlipped] = useState<boolean>(false);
+  const [exportScale, setExportScale] = useState<number>(1);
   const [cropActive, setCropActive] = useState(false);
 
   // ID Card Form State
@@ -178,35 +181,37 @@ export default function Home() {
             <a href="#hype" className="site-nav__link" onClick={playClickSound}>HYPE</a>
             <a href="#process" className="site-nav__link" onClick={playClickSound}>HOW IT WORKS</a>
             <a href="#generator" className="site-nav__link" onClick={playClickSound}>STUDIO</a>
-            <a href="#radar" className="site-nav__link" onClick={playClickSound}>RADAR</a>
-            <button
-              type="button"
-              className="site-nav__link site-nav__link--accent"
-              onClick={() => { playClickSound(); scrollToGenerator(); }}
-            >
-              CREATE
-            </button>
           </div>
 
           <div className="site-nav__controls">
             <button
-              type="button"
-              className={`site-nav__ctrl-btn ${soundOn ? "site-nav__ctrl-btn--active" : ""}`}
-              onClick={toggleSound}
-              aria-label="Toggle Sound"
-            >
-              {soundOn ? "🔊" : "🔇"}
-              <span>{soundOn ? "ON" : "OFF"}</span>
-            </button>
-            <button
-              type="button"
-              className={`site-nav__ctrl-btn ${scanlinesOn ? "site-nav__ctrl-btn--active" : ""}`}
+              className={`icon-toggle ${scanlinesOn ? "icon-toggle--active" : ""}`}
               onClick={toggleScanlines}
-              aria-label="Toggle Scanlines"
+              title="Toggle CRT Scanlines"
+              aria-label="Toggle CRT Scanlines"
+              type="button"
             >
               📺
-              <span>CRT</span>
             </button>
+
+            <button
+              className={`icon-toggle ${soundOn ? "icon-toggle--active" : ""}`}
+              onClick={toggleSound}
+              title="Toggle Audio Feedback"
+              aria-label="Toggle Audio Feedback"
+              type="button"
+            >
+              {soundOn ? "🔊" : "🔇"}
+            </button>
+
+            <a
+              href="https://hhgoa.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn--sm btn--primary"
+            >
+              REGISTER FOR HH GOA ↗
+            </a>
           </div>
         </div>
       </nav>
@@ -224,17 +229,18 @@ export default function Home() {
       <ProcessSection />
 
       {/* ─── Generator Studio Workbench ─── */}
-      <div className="app-shell">
-        <div id="generator" className="generator-anchor deco-border">
-          <div className="section-header reveal">
-            <span className="section-header__tag">BUILDER IDENTITY STUDIO</span>
-            <h2 className="section-header__title">
-              CREATE YOUR <span className="highlight-pink">HH GOA GRAPHICS</span>
-            </h2>
+      <div className="studio-section" id="generator">
+        <div className="container container--wide">
+          <div className="section-header">
+            <span className="section-tag section-tag--yellow">STEP {step === "upload" ? "01" : "02"}</span>
+            <h2 className="section-title">BUILDER IDENTITY STUDIO</h2>
+            <p className="section-desc">
+              Generate your official Hacker House Goa 2026 graphics. 100% private, client-rendered in your browser.
+            </p>
           </div>
 
           {/* Format Selector Tabs */}
-          <div className="format-toggle reveal" role="tablist" aria-label="Format selection">
+          <div className="format-toggle" role="tablist" aria-label="Format selection">
             <button
               className={`format-toggle__btn ${mode === "card" ? "format-toggle__btn--active" : ""}`}
               onClick={() => handleModeSwitch("card")}
@@ -242,7 +248,7 @@ export default function Home() {
               aria-selected={mode === "card"}
               id="tab-card"
             >
-              🪪 Builder ID Pass
+              🪪 Builder ID Pass (4:5)
             </button>
             <button
               className={`format-toggle__btn ${mode === "frame" ? "format-toggle__btn--active" : ""}`}
@@ -340,6 +346,10 @@ export default function Home() {
                     setFilter={setFilter}
                     badge={badge}
                     setBadge={setBadge}
+                    cardTheme={cardTheme}
+                    setCardTheme={setCardTheme}
+                    isFlipped={isFlipped}
+                    setIsFlipped={setIsFlipped}
                   />
                 </div>
 
@@ -356,6 +366,10 @@ export default function Home() {
                       teamName={teamName}
                       filter={filter}
                       badge={badge}
+                      cardTheme={cardTheme}
+                      isFlipped={isFlipped}
+                      exportScale={exportScale}
+                      setExportScale={setExportScale}
                     />
                   </div>
                 </div>

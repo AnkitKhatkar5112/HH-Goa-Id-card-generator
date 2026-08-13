@@ -70,6 +70,7 @@ export default function HeroSection({ onCreateClick, onHypeClick }: HeroSectionP
 
   // Live clock tick
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     setLiveTime(getLiveTimeStudioString());
     const t = setInterval(() => setLiveTime(getLiveTimeStudioString()), 5000);
