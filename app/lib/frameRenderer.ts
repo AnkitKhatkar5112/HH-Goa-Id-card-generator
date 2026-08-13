@@ -526,14 +526,14 @@ export async function renderIdCard(
   drawScatteredGoaHindi(ctx, BASE_W, BASE_H, hindiMark);
 
   // 3. Asymmetric Photo Block
-  const photoW = 740;
-  const photoH = 880;
+  const photoW = 760;
+  const photoH = 720;
   const photoX = 60;
-  const photoY = 160;
+  const photoY = 110;
 
   // Hard drop shadow
   ctx.fillStyle = themeColors.ink;
-  ctx.fillRect(photoX + 30, photoY + 30, photoW, photoH);
+  ctx.fillRect(photoX + 24, photoY + 24, photoW, photoH);
 
   // Thick Frame
   ctx.fillStyle = themeColors.yellow;
@@ -550,7 +550,7 @@ export async function renderIdCard(
   drawDataTag(ctx, `@${username.trim() || "builder"}`, photoX - 20, photoY - 20, themeColors.pink, themeColors);
 
   if (badgeText) {
-    drawStickerBadge(ctx, badgeText, photoX + photoW - 20, photoY + 60, 15, themeColors);
+    drawStickerBadge(ctx, badgeText, photoX + photoW - 20, photoY + 50, 15, themeColors);
   }
 
   // 5. Editorial Typography
@@ -558,10 +558,10 @@ export async function renderIdCard(
   ctx.textAlign = "right";
 
   ctx.fillStyle = themeColors.white;
-  let nameFontSize = 140;
+  let nameFontSize = 100;
   ctx.font = `900 ${nameFontSize}px 'Bodoni Moda', serif`;
 
-  while (ctx.measureText(displayRealName).width > BASE_W - 120 && nameFontSize > 40) {
+  while (ctx.measureText(displayRealName).width > BASE_W - 120 && nameFontSize > 36) {
     nameFontSize -= 4;
     ctx.font = `900 ${nameFontSize}px 'Bodoni Moda', serif`;
   }
@@ -571,29 +571,47 @@ export async function renderIdCard(
   ctx.shadowOffsetY = 6;
   ctx.shadowBlur = 0;
 
-  ctx.fillText(displayRealName, BASE_W - 40, photoY + photoH + 60);
+  const nameY = photoY + photoH + 90; // 110 + 720 + 90 = 920px
+  ctx.fillText(displayRealName, BASE_W - 60, nameY);
   ctx.shadowColor = "transparent";
 
   // Role and Title Technical Blocks
   const textLeft = photoX;
-  const textTop = photoY + photoH + 140;
+  const roleY = nameY + 55; // ~975px
 
   ctx.textAlign = "left";
 
   if (role) {
-    ctx.font = "800 48px 'Space Grotesk', sans-serif";
+    let roleFontSize = 40;
+    const roleText = role.toUpperCase();
+    ctx.font = `800 ${roleFontSize}px 'Space Grotesk', sans-serif`;
+
+    while (ctx.measureText(roleText).width > BASE_W - 140 && roleFontSize > 22) {
+      roleFontSize -= 2;
+      ctx.font = `800 ${roleFontSize}px 'Space Grotesk', sans-serif`;
+    }
+
     ctx.fillStyle = themeColors.yellow;
-    ctx.fillText(role.toUpperCase(), textLeft, textTop);
+    ctx.fillText(roleText, textLeft, roleY);
   }
 
   if (builderTitle) {
-    ctx.font = "40px 'VT323', monospace";
+    const titleY = role ? roleY + 50 : roleY;
+    let titleFontSize = 36;
+    const titleText = `< ${builderTitle} >`;
+    ctx.font = `${titleFontSize}px 'VT323', monospace`;
+
+    while (ctx.measureText(titleText).width > BASE_W - 140 && titleFontSize > 20) {
+      titleFontSize -= 2;
+      ctx.font = `${titleFontSize}px 'VT323', monospace`;
+    }
+
     ctx.fillStyle = themeColors.pink;
-    ctx.fillText(`< ${builderTitle} >`, textLeft, textTop + 60);
+    ctx.fillText(titleText, textLeft, titleY);
   }
 
   // 6. Structured Footer
-  const footerH = 180;
+  const footerH = 170;
   ctx.fillStyle = themeColors.ink;
   ctx.fillRect(0, BASE_H - footerH, BASE_W, footerH);
 
