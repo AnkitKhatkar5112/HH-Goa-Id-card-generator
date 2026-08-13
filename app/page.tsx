@@ -5,7 +5,6 @@ import { useState, useCallback, useEffect } from "react";
 import HeroSection from "./components/HeroSection";
 import HypeSection from "./components/HypeSection";
 import ProcessSection from "./components/ProcessSection";
-import TimelineAgenda from "./components/TimelineAgenda";
 import LiveBuilderRadar from "./components/LiveBuilderRadar";
 import UploadZone from "./components/UploadZone";
 import FramePreview from "./components/FramePreview";
@@ -29,7 +28,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Sound & CRT
-  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
+  const [soundOn, setSoundOn] = useState(true);
   const [scanlinesOn, setScanlinesOn] = useState(false);
   const [liveTimeStudio, setLiveTimeStudio] = useState(() => getLiveTimeStudioString());
 
@@ -39,12 +38,16 @@ export default function Home() {
   const [cropActive, setCropActive] = useState(false);
 
   // ID Card Form State
-  const [name, setName] = useState("");
-  const [stack, setStack] = useState("Full-Stack");
+  const [username, setUsername] = useState("");
+  const [realFullName, setRealFullName] = useState("");
+  const [role, setRole] = useState("");
   const [builderTitle, setBuilderTitle] = useState("");
+  const [teamName, setTeamName] = useState("SQUAD ZERO");
 
-  // Live clock tick
+  // Live clock tick & sound preference
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSoundOn(isSoundEnabled());
     const timer = setInterval(() => {
       setLiveTimeStudio(getLiveTimeStudioString());
     }, 5000);
@@ -122,9 +125,11 @@ export default function Home() {
     setImageSrcs([]);
     setStep("upload");
     setStatusMsg("");
-    setName("");
-    setStack("Full-Stack");
+    setUsername("");
+    setRealFullName("");
+    setRole("");
     setBuilderTitle("");
+    setTeamName("SQUAD ZERO");
     setCropActive(false);
   }, [imageSrcs]);
 
@@ -166,14 +171,13 @@ export default function Home() {
         <div className="site-nav__inner">
           <div className="site-nav__brand">
             <span className="site-nav__brand-main">HACKER GOA HOUSE</span>
-            <span className="site-nav__brand-sub">{liveTimeStudio}</span>
+            <span className="site-nav__brand-sub" suppressHydrationWarning>{liveTimeStudio}</span>
           </div>
 
           <div className="site-nav__links">
             <a href="#hype" className="site-nav__link" onClick={playClickSound}>HYPE</a>
             <a href="#process" className="site-nav__link" onClick={playClickSound}>HOW IT WORKS</a>
             <a href="#generator" className="site-nav__link" onClick={playClickSound}>STUDIO</a>
-            <a href="#agenda" className="site-nav__link" onClick={playClickSound}>RHYTHM</a>
             <a href="#radar" className="site-nav__link" onClick={playClickSound}>RADAR</a>
             <button
               type="button"
@@ -315,14 +319,19 @@ export default function Home() {
                     </div>
                   )}
 
-                  {mode === "card" && (
+                  {mode !== "frame" && (
                     <IdCardForm
-                      name={name}
-                      setName={setName}
-                      stack={stack}
-                      setStack={setStack}
+                      mode={mode}
+                      username={username}
+                      setUsername={setUsername}
+                      realFullName={realFullName}
+                      setRealFullName={setRealFullName}
+                      role={role}
+                      setRole={setRole}
                       builderTitle={builderTitle}
                       setBuilderTitle={setBuilderTitle}
+                      teamName={teamName}
+                      setTeamName={setTeamName}
                     />
                   )}
 
@@ -340,9 +349,11 @@ export default function Home() {
                     <FramePreview
                       imageSrcs={imageSrcs}
                       mode={mode}
-                      name={name}
-                      stack={stack}
+                      username={username}
+                      realFullName={realFullName}
+                      role={role}
                       builderTitle={builderTitle}
+                      teamName={teamName}
                       filter={filter}
                       badge={badge}
                     />
@@ -354,8 +365,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ─── 4-Day Rhythm & Milestones ─── */}
-      <TimelineAgenda />
 
       {/* ─── Live Builder Radar & Vibe Pads ─── */}
       <LiveBuilderRadar onGenerateClick={scrollToGenerator} />
@@ -366,7 +375,7 @@ export default function Home() {
           <span className="site-footer__brand">
             HACKER GOA HOUSE <span className="site-footer__tag">GOA</span>
           </span>
-          <span className="site-footer__credit">
+          <span className="site-footer__credit" suppressHydrationWarning>
             28 — 31 OCT 2026 · #FRAMEINGOA · {liveTimeStudio.toUpperCase()}
           </span>
         </div>

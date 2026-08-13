@@ -137,3 +137,53 @@ export function playStampSound() {
   osc.start();
   osc.stop(ctx.currentTime + 0.08);
 }
+
+/**
+ * Camera Shutter Sound FX
+ * Uses white noise burst + low frequency sine wave click
+ */
+export function playCameraShutterSound() {
+  if (!soundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const t = ctx.currentTime;
+
+  // 1. The mechanical "click" (low freq burst)
+  const clickOsc = ctx.createOscillator();
+  const clickGain = ctx.createGain();
+  clickOsc.type = "square";
+  clickOsc.frequency.setValueAtTime(100, t);
+  clickOsc.frequency.exponentialRampToValueAtTime(40, t + 0.05);
+  clickGain.gain.setValueAtTime(0.8, t);
+  clickGain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+  clickOsc.connect(clickGain);
+  clickGain.connect(ctx.destination);
+  clickOsc.start(t);
+  clickOsc.stop(t + 0.05);
+
+  // 2. The shutter "snap/noise" (white noise)
+  const bufferSize = ctx.sampleRate * 0.1; // 100ms
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = buffer;
+
+  // Highpass filter for noise to sound like metallic click
+  const filter = ctx.createBiquadFilter();
+  filter.type = "highpass";
+  filter.frequency.value = 1000;
+
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.5, t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+
+  noiseSource.connect(filter);
+  filter.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  
+  noiseSource.start(t);
+}

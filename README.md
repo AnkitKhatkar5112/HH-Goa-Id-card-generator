@@ -23,7 +23,7 @@ A cinematic, Gen-Z themed web app that lets builders create their **HH Goa 2026*
 - **Canvas Engine**: HTML5 Canvas API for all image compositing
 - **Audio**: Web Audio API synthesizer for UI sound effects
 - **Image Processing**: `react-easy-crop` for positioning, `heic-to` for HEIC conversion
-- **Fonts**: Anton (display), Space Grotesk (body), JetBrains Mono (mono), Noto Sans Devanagari (accent)
+- **Fonts**: Bodoni Moda (display), Space Grotesk (sans-serif), VT323 (monospace), Noto Sans Devanagari (accent)
 
 ## Getting Started
 
@@ -91,9 +91,9 @@ app/
 - **Halftone Dots**: Radial gradient dot patterns masked to regions
 - **Animated Grid Drift**: Background grid scrolling upward on 30s loop
 - **Floating Pixels**: Deterministic PRNG-seeded flickering dots
-- **Wipe-Fill Buttons**: Color slides in from left on hover
-- **Crop Marks**: Corner bracket registration marks on frames
-- **CRT Scanlines**: Optional toggle for retro scanline overlay
+- **Topographic Maps**: Procedurally generated math-based topographical glowing contours in the background
+- **Asymmetric Typography**: Massive rotated text elements, heavy strokes, and neon-brutalist custom wordmarks
+- **Goan Motifs**: Dense background scatter patterns using the Goa Hindi glyph
 
 ## Key Features
 
@@ -103,13 +103,13 @@ app/
 - ✅ Photo cropping and zoom with react-easy-crop
 - ✅ 5 photo filters (none, cyber, sunset, matrix, b&w)
 - ✅ 6 badge stamps (Susegad, 0xGOA, Builder, etc.)
-- ✅ Slot-machine random builder title generator
-- ✅ Web Audio synthesizer for UI sound effects
+- ✅ Team Squad mode with dynamic multi-photo layout and Team Name input
+- ✅ High-end Canvas compositing (Custom stroke wordmarks, drop shadows, polaroid layouts)
 - ✅ Share-to-X with pre-filled tweet text
 - ✅ Confetti celebration on download
 - ✅ Scroll-triggered reveal animations
 - ✅ Mouse-follow parallax on hero
-- ✅ Dynamic live clock in branding
+- ✅ Dynamic live clock in branding (SSR Hydration safe)
 - ✅ Fully responsive (mobile-first)
 
 ## License

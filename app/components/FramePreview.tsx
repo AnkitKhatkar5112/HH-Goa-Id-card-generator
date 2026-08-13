@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { renderPfpFrame, renderIdCard, renderTeamFrame, PhotoFilter } from "../lib/frameRenderer";
 import { canvasToBlob, downloadBlob, triggerConfetti } from "../lib/imageUtils";
-import { playClickSound, playSuccessChime } from "../lib/audioUtils";
+import { playClickSound, playSuccessChime, playCameraShutterSound } from "../lib/audioUtils";
 import {
   uploadToCloudinary,
   encodeShareId,
@@ -14,9 +14,11 @@ import {
 interface FramePreviewProps {
   imageSrcs: string[];
   mode: "frame" | "card" | "team";
-  name: string;
-  stack: string;
+  username: string;
+  realFullName: string;
+  role: string;
   builderTitle: string;
+  teamName?: string;
   filter?: PhotoFilter;
   badge?: string;
 }
@@ -24,9 +26,11 @@ interface FramePreviewProps {
 export default function FramePreview({
   imageSrcs,
   mode,
-  name,
-  stack,
+  username,
+  realFullName,
+  role,
   builderTitle,
+  teamName = "SQUAD ZERO",
   filter = "none",
   badge = "",
 }: FramePreviewProps) {
@@ -52,9 +56,9 @@ export default function FramePreview({
         if (mode === "frame") {
           result = await renderPfpFrame(imageSrcs[0], filter, badge);
         } else if (mode === "card") {
-          result = await renderIdCard(imageSrcs[0], name, stack, builderTitle, filter, badge);
+          result = await renderIdCard(imageSrcs[0], username, realFullName, role, builderTitle, filter, badge);
         } else {
-          result = await renderTeamFrame(imageSrcs, filter, badge);
+          result = await renderTeamFrame(imageSrcs, teamName, filter, badge);
         }
 
         if (cancelled) return;
@@ -79,7 +83,7 @@ export default function FramePreview({
     return () => {
       cancelled = true;
     };
-  }, [imageSrcs, mode, name, stack, builderTitle, filter, badge]);
+  }, [imageSrcs, mode, username, realFullName, role, builderTitle, teamName, filter, badge]);
 
   // Download handler
   const handleDownload = useCallback(async () => {
@@ -92,9 +96,31 @@ export default function FramePreview({
     if (mode === "team") filename = "hh-goa-2026-team-frame.png";
 
     downloadBlob(blob, filename);
+    playCameraShutterSound();
     playSuccessChime();
     triggerConfetti();
-  }, [renderedCanvas, mode]);
+
+    // POST real insight to Live Radar
+    try {
+      let actionText = "downloaded graphic";
+      let badgeText = "📸 PFP";
+      if (mode === "card") { actionText = "generated Builder ID"; badgeText = "🪪 ID"; }
+      else if (mode === "team") { actionText = "created squad pass"; badgeText = "🧑‍🤝‍🧑 TEAM"; }
+
+      await fetch("/api/radar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: username ? `@${username.replace('@', '')}` : "@builder",
+          action: actionText,
+          badge: badgeText,
+          title: builderTitle || role || "Early Adopter",
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to post radar log", err);
+    }
+  }, [renderedCanvas, mode, username, builderTitle, role]);
 
   // Copy to Clipboard handler
   const handleCopy = useCallback(async () => {
@@ -106,6 +132,7 @@ export default function FramePreview({
       if (navigator.clipboard && window.ClipboardItem) {
         await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
         setCopiedStatus(true);
+        playCameraShutterSound();
         playSuccessChime();
         triggerConfetti();
         setTimeout(() => setCopiedStatus(false), 2500);

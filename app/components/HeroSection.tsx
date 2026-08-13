@@ -65,10 +65,13 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onCreateClick, onHypeClick }: HeroSectionProps) {
   const heroRef = useRef<HTMLElement>(null);
-  const [liveTime, setLiveTime] = useState(() => getLiveTimeStudioString());
+  const [liveTime, setLiveTime] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
 
   // Live clock tick
   useEffect(() => {
+    setIsMounted(true);
+    setLiveTime(getLiveTimeStudioString());
     const t = setInterval(() => setLiveTime(getLiveTimeStudioString()), 5000);
     return () => clearInterval(t);
   }, []);
@@ -110,7 +113,7 @@ export default function HeroSection({ onCreateClick, onHypeClick }: HeroSectionP
       <div className="hero__frame">
         {/* Corner info — left */}
         <div className="hero__corner hero__corner--tl">
-          <span className="hero__clock">{liveTime.toUpperCase()}</span>
+          <span className="hero__clock">{isMounted ? liveTime.toUpperCase() : "SYNCING..."}</span>
         </div>
 
         {/* Corner info — right */}
