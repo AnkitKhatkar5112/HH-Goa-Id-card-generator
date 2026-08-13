@@ -2500,3 +2500,43 @@ input:focus-visible {
   border-color: var(--yellow-primary);
 }
 
+/* Flex Center Helper */
+.flex-center-gap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* GitHub Project Repo Banner */
+.repo-banner {
+  background: linear-gradient(135deg, rgba(245, 211, 0, 0.08) 0%, rgba(15, 61, 46, 0.6) 100%);
+  border: 1px solid rgba(245, 211, 0, 0.3);
+  padding: var(--space-6);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+.repo-banner__tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--yellow-primary);
+  letter-spacing: 0.15em;
+  display: block;
+  margin-bottom: var(--space-1);
+}
+.repo-banner__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: bold;
+  color: var(--off-white);
+}
+.repo-banner__sub {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--off-white-dim);
+  margin-top: 4px;
+}
+
