@@ -13,7 +13,7 @@ import FilterStickerControls from "./components/FilterStickerControls";
 import PhotoCropper from "./components/PhotoCropper";
 
 import { processUploadedFile, getCroppedImg } from "./lib/imageUtils";
-import { PhotoFilter, CardTheme, getLiveTimeStudioString } from "./lib/frameRenderer";
+import { PhotoFilter, CardTheme, TeamLayoutOption, getLiveTimeStudioString } from "./lib/frameRenderer";
 import { isSoundEnabled, setSoundEnabled, playClickSound } from "./lib/audioUtils";
 import { useScrollReveal } from "./hooks/useScrollReveal";
 
@@ -36,6 +36,7 @@ export default function Home() {
   const [filter, setFilter] = useState<PhotoFilter>("none");
   const [badge, setBadge] = useState<string>("🌴 SUSEGAD");
   const [cardTheme, setCardTheme] = useState<CardTheme>("forest");
+  const [teamLayout, setTeamLayout] = useState<TeamLayoutOption>("auto");
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [exportScale, setExportScale] = useState<number>(1);
   const [cropActive, setCropActive] = useState(false);
@@ -362,6 +363,10 @@ export default function Home() {
                     setCardTheme={setCardTheme}
                     isFlipped={isFlipped}
                     setIsFlipped={setIsFlipped}
+                    mode={mode}
+                    imageCount={imageSrcs.length}
+                    teamLayout={teamLayout}
+                    setTeamLayout={setTeamLayout}
                   />
                 </div>
 
@@ -379,6 +384,7 @@ export default function Home() {
                       filter={filter}
                       badge={badge}
                       cardTheme={cardTheme}
+                      teamLayout={teamLayout}
                       isFlipped={isFlipped}
                       exportScale={exportScale}
                       setExportScale={setExportScale}

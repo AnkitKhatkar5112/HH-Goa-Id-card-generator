@@ -1,6 +1,6 @@
 "use client";
 
-import { PhotoFilter, CardTheme } from "../lib/frameRenderer";
+import { PhotoFilter, CardTheme, TeamLayoutOption } from "../lib/frameRenderer";
 import { playClickSound, playStampSound } from "../lib/audioUtils";
 
 interface FilterStickerControlsProps {
@@ -12,6 +12,10 @@ interface FilterStickerControlsProps {
   setCardTheme: (t: CardTheme) => void;
   isFlipped: boolean;
   setIsFlipped: (f: boolean) => void;
+  mode?: "frame" | "card" | "team";
+  imageCount?: number;
+  teamLayout?: TeamLayoutOption;
+  setTeamLayout?: (l: TeamLayoutOption) => void;
 }
 
 const FILTER_OPTIONS: Array<{ id: PhotoFilter; label: string; icon: string }> = [
@@ -48,12 +52,99 @@ export default function FilterStickerControls({
   setCardTheme,
   isFlipped,
   setIsFlipped,
+  mode,
+  imageCount = 1,
+  teamLayout = "auto",
+  setTeamLayout,
 }: FilterStickerControlsProps) {
   return (
     <div className="studio-card fade-in-up">
       <h3 className="studio-card__title">
-        <span className="icon">🎨</span> Photo Vibe & Badge FX
+        <span className="icon">🎨</span> Graphic FX & Squad Layout
       </h3>
+
+      {/* Team Squad Grid Layout Chooser */}
+      {mode === "team" && setTeamLayout && (
+        <div className="id-form__group" style={{ marginBottom: "var(--space-4)" }}>
+          <label className="id-form__label">Squad Photo Grid Layout</label>
+          <div className="theme-grid">
+            {imageCount === 3 && (
+              <>
+                <button
+                  type="button"
+                  className={`theme-chip ${teamLayout === "3-vertical" ? "theme-chip--active" : ""}`}
+                  onClick={() => {
+                    playClickSound();
+                    setTeamLayout("3-vertical");
+                  }}
+                >
+                  📱 3 Vertical Columns
+                </button>
+                <button
+                  type="button"
+                  className={`theme-chip ${teamLayout === "3-hybrid" || teamLayout === "auto" ? "theme-chip--active" : ""}`}
+                  onClick={() => {
+                    playClickSound();
+                    setTeamLayout("3-hybrid");
+                  }}
+                >
+                  🖼️ 1 Hero + 2 Stacked
+                </button>
+              </>
+            )}
+
+            {imageCount === 2 && (
+              <>
+                <button
+                  type="button"
+                  className={`theme-chip ${teamLayout === "2-split" ? "theme-chip--active" : ""}`}
+                  onClick={() => {
+                    playClickSound();
+                    setTeamLayout("2-split");
+                  }}
+                >
+                  📱 2 Vertical Columns
+                </button>
+                <button
+                  type="button"
+                  className={`theme-chip ${teamLayout === "2-stacked" || teamLayout === "auto" ? "theme-chip--active" : ""}`}
+                  onClick={() => {
+                    playClickSound();
+                    setTeamLayout("2-stacked");
+                  }}
+                >
+                  📜 2 Horizontal Stack
+                </button>
+              </>
+            )}
+
+            {imageCount >= 4 && (
+              <>
+                <button
+                  type="button"
+                  className={`theme-chip ${teamLayout === "4-grid" || teamLayout === "auto" ? "theme-chip--active" : ""}`}
+                  onClick={() => {
+                    playClickSound();
+                    setTeamLayout("4-grid");
+                  }}
+                >
+                  🔲 2x2 Matrix Grid
+                </button>
+                <button
+                  type="button"
+                  className={`theme-chip ${teamLayout === "4-vertical" ? "theme-chip--active" : ""}`}
+                  onClick={() => {
+                    playClickSound();
+                    setTeamLayout("4-vertical");
+                  }}
+                >
+                  📱 4 Vertical Columns
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Card Color Theme Presets */}
       <div className="id-form__group">

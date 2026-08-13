@@ -32,6 +32,7 @@ const STRINGS = {
 
 export type PhotoFilter = "none" | "cyber" | "sunset" | "matrix" | "bw";
 export type CardTheme = "forest" | "sunset" | "gold" | "cyber";
+export type TeamLayoutOption = "auto" | "3-vertical" | "3-hybrid" | "2-split" | "2-stacked" | "4-grid" | "4-vertical";
 
 export interface ThemeColors {
   forest: string;
@@ -629,7 +630,8 @@ export async function renderTeamFrame(
   badgeText = "",
   theme: CardTheme = "forest",
   isFlipped = false,
-  scale = 1
+  scale = 1,
+  teamLayout: TeamLayoutOption = "auto"
 ): Promise<HTMLCanvasElement> {
   await ensureFontsLoaded();
   const BASE_W = 1080;
@@ -676,7 +678,7 @@ export async function renderTeamFrame(
   ctx.fillStyle = themeColors.pink;
   ctx.fillRect(BASE_W / 2 - 150, 260, 300, 8);
 
-  // 2. Dynamic Photo Cluster
+  // Photos Cluster
   const photos = await Promise.all(imageSrcs.map((src) => loadImage(src)));
   const count = imageSrcs.length;
 
@@ -704,38 +706,76 @@ export async function renderTeamFrame(
     drawCoverImage(ctx, photos[0], clusterX, clusterY, clusterW, clusterH, isFlipped);
     applyPhotoFilter(ctx, clusterX, clusterY, clusterW, clusterH, filter, themeColors);
   } else if (count === 2) {
-    const halfH = (clusterH - gap) / 2;
-    drawCoverImage(ctx, photos[0], clusterX, clusterY, clusterW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX, clusterY, clusterW, halfH, filter, themeColors);
+    if (teamLayout === "2-split") {
+      // 2 Vertical Columns side-by-side
+      const colW = Math.floor((clusterW - gap) / 2);
+      drawCoverImage(ctx, photos[0], clusterX, clusterY, colW, clusterH, isFlipped);
+      applyPhotoFilter(ctx, clusterX, clusterY, colW, clusterH, filter, themeColors);
 
-    drawCoverImage(ctx, photos[1], clusterX, clusterY + halfH + gap, clusterW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX, clusterY + halfH + gap, clusterW, halfH, filter, themeColors);
+      drawCoverImage(ctx, photos[1], clusterX + colW + gap, clusterY, colW, clusterH, isFlipped);
+      applyPhotoFilter(ctx, clusterX + colW + gap, clusterY, colW, clusterH, filter, themeColors);
+    } else {
+      // 2 Stacked Horizontal Banners
+      const halfH = Math.floor((clusterH - gap) / 2);
+      drawCoverImage(ctx, photos[0], clusterX, clusterY, clusterW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX, clusterY, clusterW, halfH, filter, themeColors);
+
+      drawCoverImage(ctx, photos[1], clusterX, clusterY + halfH + gap, clusterW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX, clusterY + halfH + gap, clusterW, halfH, filter, themeColors);
+    }
   } else if (count === 3) {
-    const halfW = (clusterW - gap) / 2;
-    const halfH = (clusterH - gap) / 2;
-    drawCoverImage(ctx, photos[0], clusterX, clusterY, clusterW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX, clusterY, clusterW, halfH, filter, themeColors);
+    if (teamLayout === "3-vertical") {
+      // 3 Vertical Portrait Columns side-by-side
+      const colW = Math.floor((clusterW - 2 * gap) / 3);
+      drawCoverImage(ctx, photos[0], clusterX, clusterY, colW, clusterH, isFlipped);
+      applyPhotoFilter(ctx, clusterX, clusterY, colW, clusterH, filter, themeColors);
 
-    drawCoverImage(ctx, photos[1], clusterX, clusterY + halfH + gap, halfW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX, clusterY + halfH + gap, halfW, halfH, filter, themeColors);
+      drawCoverImage(ctx, photos[1], clusterX + colW + gap, clusterY, colW, clusterH, isFlipped);
+      applyPhotoFilter(ctx, clusterX + colW + gap, clusterY, colW, clusterH, filter, themeColors);
 
-    drawCoverImage(ctx, photos[2], clusterX + halfW + gap, clusterY + halfH + gap, halfW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX + halfW + gap, clusterY + halfH + gap, halfW, halfH, filter, themeColors);
+      drawCoverImage(ctx, photos[2], clusterX + 2 * (colW + gap), clusterY, colW, clusterH, isFlipped);
+      applyPhotoFilter(ctx, clusterX + 2 * (colW + gap), clusterY, colW, clusterH, filter, themeColors);
+    } else {
+      // 3 Hybrid: 1 Hero Left + 2 Stacked Right (or 1 Top + 2 Bottom)
+      const leftW = Math.floor((clusterW - gap) * 0.52);
+      const rightW = clusterW - gap - leftW;
+      const halfH = Math.floor((clusterH - gap) / 2);
+
+      drawCoverImage(ctx, photos[0], clusterX, clusterY, leftW, clusterH, isFlipped);
+      applyPhotoFilter(ctx, clusterX, clusterY, leftW, clusterH, filter, themeColors);
+
+      drawCoverImage(ctx, photos[1], clusterX + leftW + gap, clusterY, rightW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX + leftW + gap, clusterY, rightW, halfH, filter, themeColors);
+
+      drawCoverImage(ctx, photos[2], clusterX + leftW + gap, clusterY + halfH + gap, rightW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX + leftW + gap, clusterY + halfH + gap, rightW, halfH, filter, themeColors);
+    }
   } else {
-    // 2x2 grid
-    const halfW = (clusterW - gap) / 2;
-    const halfH = (clusterH - gap) / 2;
-    drawCoverImage(ctx, photos[0], clusterX, clusterY, halfW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX, clusterY, halfW, halfH, filter, themeColors);
+    // count === 4
+    if (teamLayout === "4-vertical") {
+      // 4 Vertical Strip Columns side-by-side
+      const colW = Math.floor((clusterW - 3 * gap) / 4);
+      for (let i = 0; i < 4; i++) {
+        const cx = clusterX + i * (colW + gap);
+        drawCoverImage(ctx, photos[i], cx, clusterY, colW, clusterH, isFlipped);
+        applyPhotoFilter(ctx, cx, clusterY, colW, clusterH, filter, themeColors);
+      }
+    } else {
+      // 2x2 Matrix Grid
+      const halfW = Math.floor((clusterW - gap) / 2);
+      const halfH = Math.floor((clusterH - gap) / 2);
+      drawCoverImage(ctx, photos[0], clusterX, clusterY, halfW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX, clusterY, halfW, halfH, filter, themeColors);
 
-    drawCoverImage(ctx, photos[1], clusterX + halfW + gap, clusterY, halfW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX + halfW + gap, clusterY, halfW, halfH, filter, themeColors);
+      drawCoverImage(ctx, photos[1], clusterX + halfW + gap, clusterY, halfW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX + halfW + gap, clusterY, halfW, halfH, filter, themeColors);
 
-    drawCoverImage(ctx, photos[2], clusterX, clusterY + halfH + gap, halfW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX, clusterY + halfH + gap, halfW, halfH, filter, themeColors);
+      drawCoverImage(ctx, photos[2], clusterX, clusterY + halfH + gap, halfW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX, clusterY + halfH + gap, halfW, halfH, filter, themeColors);
 
-    drawCoverImage(ctx, photos[3], clusterX + halfW + gap, clusterY + halfH + gap, halfW, halfH, isFlipped);
-    applyPhotoFilter(ctx, clusterX + halfW + gap, clusterY + halfH + gap, halfW, halfH, filter, themeColors);
+      drawCoverImage(ctx, photos[3], clusterX + halfW + gap, clusterY + halfH + gap, halfW, halfH, isFlipped);
+      applyPhotoFilter(ctx, clusterX + halfW + gap, clusterY + halfH + gap, halfW, halfH, filter, themeColors);
+    }
   }
 
   // Crosshairs for cluster

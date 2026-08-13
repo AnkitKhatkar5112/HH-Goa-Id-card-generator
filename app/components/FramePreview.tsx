@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { renderPfpFrame, renderIdCard, renderTeamFrame, PhotoFilter, CardTheme } from "../lib/frameRenderer";
+import {
+  renderPfpFrame,
+  renderIdCard,
+  renderTeamFrame,
+  PhotoFilter,
+  CardTheme,
+  TeamLayoutOption,
+} from "../lib/frameRenderer";
 import { canvasToBlob, downloadBlob, triggerConfetti } from "../lib/imageUtils";
 import { playClickSound, playSuccessChime, playCameraShutterSound } from "../lib/audioUtils";
 import {
@@ -25,6 +32,7 @@ interface FramePreviewProps {
   filter?: PhotoFilter;
   badge?: string;
   cardTheme?: CardTheme;
+  teamLayout?: TeamLayoutOption;
   isFlipped?: boolean;
   exportScale: number;
   setExportScale: (s: number) => void;
@@ -41,6 +49,7 @@ export default function FramePreview({
   filter = "none",
   badge = "",
   cardTheme = "forest",
+  teamLayout = "auto",
   isFlipped = false,
   exportScale = 1,
   setExportScale,
@@ -98,7 +107,7 @@ export default function FramePreview({
         } else if (mode === "card") {
           result = await renderIdCard(imageSrcs[0], username, realFullName, role, builderTitle, filter, badge, cardTheme, isFlipped, exportScale);
         } else {
-          result = await renderTeamFrame(imageSrcs, teamName, filter, badge, cardTheme, isFlipped, exportScale);
+          result = await renderTeamFrame(imageSrcs, teamName, filter, badge, cardTheme, isFlipped, exportScale, teamLayout);
         }
 
         if (cancelled) return;
@@ -122,7 +131,7 @@ export default function FramePreview({
     return () => {
       cancelled = true;
     };
-  }, [imageSrcs, mode, username, realFullName, role, builderTitle, teamName, filter, badge, cardTheme, isFlipped, exportScale]);
+  }, [imageSrcs, mode, username, realFullName, role, builderTitle, teamName, filter, badge, cardTheme, teamLayout, isFlipped, exportScale]);
 
   // Download handler
   const handleDownload = useCallback(async () => {
