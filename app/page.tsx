@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from "react";
 import HeroSection from "./components/HeroSection";
 import HypeSection from "./components/HypeSection";
 import ProcessSection from "./components/ProcessSection";
+import AboutSection from "./components/AboutSection";
 import LiveBuilderRadar from "./components/LiveBuilderRadar";
 import UploadZone from "./components/UploadZone";
 import FramePreview from "./components/FramePreview";
@@ -191,6 +192,7 @@ export default function Home() {
             <a href="#hype" className="site-nav__link" onClick={playClickSound}>HYPE</a>
             <a href="#process" className="site-nav__link" onClick={playClickSound}>HOW IT WORKS</a>
             <a href="#generator" className="site-nav__link" onClick={playClickSound}>STUDIO</a>
+            <a href="#about" className="site-nav__link" onClick={playClickSound}>ABOUT</a>
           </div>
 
           <div className="site-nav__controls">
@@ -397,6 +399,9 @@ export default function Home() {
         </div>
       </div>
 
+
+      {/* ─── About The Builders Section ─── */}
+      <AboutSection />
 
       {/* ─── Live Builder Radar & Vibe Pads ─── */}
       <LiveBuilderRadar onGenerateClick={scrollToGenerator} />
