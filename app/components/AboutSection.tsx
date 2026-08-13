@@ -37,7 +37,7 @@ const BUILDERS: BuilderProfile[] = [
     bio: "Founder of CatchUpX (IIT Bombay Hackathon Finalist) & Incident Response System builder. Focuses on end-to-end system design, AI models, and cloud automation.",
     tags: ["EdTech AI", "Incident Response", "Cloud Systems"],
     linkedin: "https://www.linkedin.com/in/himanshu-verma-752b8a250?utm_source=share_via&utm_content=profile&utm_medium=member_android",
-    github: "https://github.com/AnkitKhatkar5112",
+    github: "Https://www.github.com/GhostRiderGaming",
     avatarInitials: "HV",
   },
 ];
