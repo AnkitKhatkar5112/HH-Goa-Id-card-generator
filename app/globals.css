@@ -2061,6 +2061,45 @@ a { color: inherit; }
   font-weight: bold;
 }
 
+/* Inline Title Slot Reroll Button */
+.title-input-wrap {
+  position: relative;
+}
+.btn-reroll-inline {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  padding: 5px 10px;
+  background: var(--yellow-primary);
+  color: var(--ink-dark);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s var(--ease-cinematic);
+  z-index: 2;
+}
+.btn-reroll-inline:hover {
+  background: var(--pink-hot);
+  color: #fff;
+  transform: translateY(-50%) scale(1.03);
+}
+.btn-reroll-inline:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.title-input--rolling {
+  border-color: var(--pink-hot) !important;
+  box-shadow: 0 0 10px rgba(255, 46, 147, 0.4);
+}
+
 /* Feature 3: Card Theme Presets & Photo Mirror */
 .theme-grid {
   display: grid;

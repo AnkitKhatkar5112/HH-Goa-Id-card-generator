@@ -1,5 +1,14 @@
 [
   {
+    "id": "0cf1d8bf-1a03-4bae-b603-7097d613d12c",
+    "time": "9:08 PM",
+    "timestamp": 1786635495258,
+    "user": "@avimore088",
+    "action": "generated Builder ID",
+    "badge": "🪪 ID",
+    "title": "Low-Latency Susegad Engineer"
+  },
+  {
     "id": "72fadf9b-d38d-41c3-885a-fe32902a3600",
     "time": "7:49 PM",
     "timestamp": 1786630784685,
@@ -439,14 +448,5 @@
     "action": "triggered vibe pad",
     "badge": "🔊 VIBE",
     "title": "🌙 2:47 AM Night"
-  },
-  {
-    "id": "d5f55e03-2b78-4e00-814e-1d01cffd268e",
-    "time": "4:24 PM",
-    "timestamp": 1786618486885,
-    "user": "@visitor",
-    "action": "triggered vibe pad",
-    "badge": "🔊 VIBE",
-    "title": "🥥 Coconut Hack"
   }
 ]

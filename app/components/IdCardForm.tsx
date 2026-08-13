@@ -207,26 +207,42 @@ export default function IdCardForm({
             </div>
           </div>
 
-          {/* Slot Machine Title Generator */}
+          {/* Editable Builder Title + Slot Machine Reroll Button */}
           <div className="id-form__group" style={{ marginTop: "var(--space-4)" }}>
             <div className="label-with-hint">
-              <label className="id-form__label">Goa Builder Title</label>
-              <span className="id-form__hint">Slot Machine Generator</span>
+              <label className="id-form__label" htmlFor="builder-title-input">
+                Goa Builder Title
+              </label>
+              <span className="id-form__hint">Type manually or tap 🎰 Spin</span>
             </div>
 
-            <div className={`builder-title-display ${isRolling ? "builder-title-display--rolling" : ""}`}>
-              <span className="builder-title-text">
-                &quot;{builderTitle || "..."}&quot;
-              </span>
+            <div className="input-wrap title-input-wrap">
+              <span className="input-prefix" style={{ color: "var(--pink-hot)" }}>&lt;</span>
+              <input
+                id="builder-title-input"
+                className={`id-form__input ${isRolling ? "title-input--rolling" : ""}`}
+                style={{
+                  paddingRight: "100px",
+                  color: "var(--pink-hot)",
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: "bold",
+                }}
+                type="text"
+                placeholder="e.g. Low-Latency Palm Shader"
+                value={builderTitle}
+                onChange={(e) => setBuilderTitle(e.target.value)}
+                maxLength={35}
+                autoComplete="off"
+              />
               <button
-                className={`builder-title-reroll ${isRolling ? "spin-anim" : ""}`}
+                type="button"
+                className={`btn-reroll-inline ${isRolling ? "spin-anim" : ""}`}
                 onClick={handleReroll}
                 disabled={isRolling}
-                title="Roll new title"
-                aria-label="Generate new builder title"
-                type="button"
+                title="Spin random title"
+                aria-label="Spin random builder title"
               >
-                🎰 Reroll
+                🎰 Spin
               </button>
             </div>
           </div>
