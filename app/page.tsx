@@ -190,6 +190,7 @@ export default function Home() {
 
           <div className="site-nav__links">
             <a href="#hype" className="site-nav__link" onClick={playClickSound}>HYPE</a>
+            <a href="#radar" className="site-nav__link" onClick={playClickSound}>RADAR</a>
             <a href="#process" className="site-nav__link" onClick={playClickSound}>HOW IT WORKS</a>
             <a href="#generator" className="site-nav__link" onClick={playClickSound}>STUDIO</a>
             <a href="#about" className="site-nav__link" onClick={playClickSound}>ABOUT</a>
@@ -250,6 +251,11 @@ export default function Home() {
 
       {/* ─── Hype Section ─── */}
       <HypeSection onGenerateClick={scrollToGenerator} />
+
+      {/* ─── Live Builder Radar & Vibe Pads ─── */}
+      <div id="radar">
+        <LiveBuilderRadar onGenerateClick={scrollToGenerator} />
+      </div>
 
       {/* ─── Process Section ("Build Your Identity") ─── */}
       <ProcessSection />
@@ -416,9 +422,6 @@ export default function Home() {
 
       {/* ─── About The Builders Section ─── */}
       <AboutSection />
-
-      {/* ─── Live Builder Radar & Vibe Pads ─── */}
-      <LiveBuilderRadar onGenerateClick={scrollToGenerator} />
 
       {/* ─── Footer ─── */}
       <footer className="site-footer">
