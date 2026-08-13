@@ -13,6 +13,14 @@ export const metadata: Metadata = {
   description:
     "Create your HH Goa 2026 PFP frame or Builder ID card. Upload a photo, get a Goa-branded graphic, download and share to X. No login required.",
   keywords: ["HH Goa", "2026", "hacker house", "profile picture", "frame", "ID card", "builder"],
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/assets/goa_hindi.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "HH Goa 2026 — Frame & ID Card Generator",
     description: "Get your HH Goa 2026 look. Upload → Frame → Share.",
