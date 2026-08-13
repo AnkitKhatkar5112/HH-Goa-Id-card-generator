@@ -8,6 +8,9 @@ import {
   uploadToCloudinary,
   encodeShareId,
   buildXIntentUrl,
+  buildWhatsAppIntentUrl,
+  buildLinkedInIntentUrl,
+  buildTelegramIntentUrl,
   getBaseUrl,
 } from "../lib/shareUtils";
 
@@ -58,12 +61,12 @@ export default function FramePreview({
     const wrap = wrapRef.current;
     if (!wrap) return;
     const rect = wrap.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width; // 0 to 1
+    const px = (e.clientX - rect.left) / rect.width;
     const py = (e.clientY - rect.top) / rect.height;
-    
-    const rotateY = (px - 0.5) * 24; // -12deg to 12deg
+
+    const rotateY = (px - 0.5) * 24;
     const rotateX = (0.5 - py) * 24;
-    
+
     wrap.style.setProperty("--tilt-rx", `${rotateX.toFixed(2)}deg`);
     wrap.style.setProperty("--tilt-ry", `${rotateY.toFixed(2)}deg`);
     wrap.style.setProperty("--sheen-x", `${(px * 100).toFixed(1)}%`);
@@ -102,7 +105,6 @@ export default function FramePreview({
 
         setRenderedCanvas(result);
 
-        // Draw onto the visible display canvas
         if (canvasRef.current) {
           canvasRef.current.width = result.width;
           canvasRef.current.height = result.height;
@@ -137,7 +139,6 @@ export default function FramePreview({
     playSuccessChime();
     triggerConfetti();
 
-    // POST real insight to Live Radar
     try {
       let actionText = "downloaded graphic";
       let badgeText = "📸 PFP";
@@ -159,7 +160,7 @@ export default function FramePreview({
     }
   }, [renderedCanvas, mode, username, builderTitle, role, exportScale]);
 
-  // Copy to Clipboard handler
+  // Copy Image to Clipboard handler
   const handleCopy = useCallback(async () => {
     if (!renderedCanvas) return;
     playClickSound();
@@ -181,7 +182,7 @@ export default function FramePreview({
     }
   }, [renderedCanvas]);
 
-  // Open Social Share Modal
+  // Open Multi-Platform Share Modal
   const handleOpenXModal = () => {
     playClickSound();
     setIsXModalOpen(true);
@@ -202,7 +203,7 @@ export default function FramePreview({
   const handleCopyTweetText = async () => {
     playClickSound();
     try {
-      await navigator.clipboard.writeText(getTweetDraftText());
+      await navigator.clipboard.writeText(`${getTweetDraftText()}\n${getBaseUrl()}`);
       setTweetCopied(true);
       playSuccessChime();
       setTimeout(() => setTweetCopied(false), 2500);
@@ -211,23 +212,29 @@ export default function FramePreview({
     }
   };
 
-  // Launch Twitter/X intent
+  // 𝕏 Twitter Launch
   const handleLaunchXIntent = useCallback(async () => {
     if (!renderedCanvas) return;
     playClickSound();
     setIsSharing(true);
-    setShareStatus("Preparing Cloud OG Share...");
+    setShareStatus("Preparing share link...");
 
     try {
-      const blob = await canvasToBlob(renderedCanvas);
-      const imageUrl = await uploadToCloudinary(blob);
+      let imageUrl = "";
+      try {
+        const blob = await canvasToBlob(renderedCanvas);
+        imageUrl = await uploadToCloudinary(blob);
+      } catch {
+        // Fallback without Cloudinary
+      }
 
-      const shareId = encodeShareId(imageUrl, mode);
-      const baseUrl = getBaseUrl();
-      const sharePageUrl = `${baseUrl}/share/${shareId}`;
+      let sharePageUrl = getBaseUrl();
+      if (imageUrl && !imageUrl.startsWith("blob:")) {
+        const shareId = encodeShareId(imageUrl, mode);
+        sharePageUrl = `${getBaseUrl()}/share/${shareId}`;
+      }
 
       const intentUrl = buildXIntentUrl(sharePageUrl, mode);
-
       setShareStatus("");
       playSuccessChime();
       triggerConfetti();
@@ -235,11 +242,65 @@ export default function FramePreview({
       window.open(intentUrl, "_blank", "noopener,noreferrer");
     } catch (err) {
       console.error("Share failed:", err);
-      // Direct X share fallback without cloud upload
-      const tweetText = encodeURIComponent(getTweetDraftText());
-      window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, "_blank", "noopener,noreferrer");
+      const text = encodeURIComponent(`${getTweetDraftText()}\n${getBaseUrl()}`);
+      window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank", "noopener,noreferrer");
     } finally {
       setIsSharing(false);
+    }
+  }, [renderedCanvas, mode, getTweetDraftText]);
+
+  // WhatsApp Launch
+  const handleLaunchWhatsApp = useCallback(async () => {
+    playClickSound();
+    const text = getTweetDraftText();
+    const url = buildWhatsAppIntentUrl(text, getBaseUrl());
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, [getTweetDraftText]);
+
+  // LinkedIn Launch
+  const handleLaunchLinkedIn = useCallback(() => {
+    playClickSound();
+    const url = buildLinkedInIntentUrl(getBaseUrl());
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, []);
+
+  // Telegram Launch
+  const handleLaunchTelegram = useCallback(() => {
+    playClickSound();
+    const text = getTweetDraftText();
+    const url = buildTelegramIntentUrl(text, getBaseUrl());
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, [getTweetDraftText]);
+
+  // Native Device File Share API (opens native Share Drawer with PNG attached!)
+  const handleNativeShareFile = useCallback(async () => {
+    if (!renderedCanvas) return;
+    playClickSound();
+
+    try {
+      const blob = await canvasToBlob(renderedCanvas);
+      const file = new File([blob], `hh-goa-2026-${mode}.png`, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: "Hacker House Goa 2026 Graphic",
+          text: getTweetDraftText(),
+          url: getBaseUrl(),
+          files: [file],
+        });
+        playSuccessChime();
+        triggerConfetti();
+      } else if (navigator.share) {
+        await navigator.share({
+          title: "Hacker House Goa 2026 Graphic",
+          text: `${getTweetDraftText()}\n${getBaseUrl()}`,
+        });
+        playSuccessChime();
+      } else {
+        setShareStatus("Native share drawer not supported on this browser.");
+      }
+    } catch (err) {
+      console.warn("Native share cancelled or failed:", err);
     }
   }, [renderedCanvas, mode, getTweetDraftText]);
 
@@ -250,7 +311,6 @@ export default function FramePreview({
         <span className="live-pill">● LIVE 3D ENGINE PREVIEW</span>
 
         <div className="preview-header-controls">
-          {/* 1x / 2x Scale Selector */}
           <div className="scale-toggle">
             <button
               type="button"
@@ -333,7 +393,7 @@ export default function FramePreview({
             disabled={isRendering || !renderedCanvas}
             id="share-x-btn"
           >
-            𝕏 Share to Twitter
+            🚀 Share & Flex Identity
           </button>
 
           <button
@@ -373,44 +433,85 @@ export default function FramePreview({
         </div>
       )}
 
-      {/* 𝕏 Twitter Share Modal */}
+      {/* Multi-Platform Share Modal */}
       {isXModalOpen && (
         <div className="modal-backdrop" onClick={() => setIsXModalOpen(false)}>
           <div className="modal-content share-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setIsXModalOpen(false)} type="button">
               ✕
             </button>
-            <h4 className="share-modal__title">𝕏 Share Your Goa Builder Pass</h4>
-            <p className="share-modal__sub">Post your graphic directly to Twitter/X to flex your builder identity!</p>
+            <h4 className="share-modal__title">🌴 Share Your Goa Builder Pass</h4>
+            <p className="share-modal__sub">Post your graphic directly to Twitter/X, WhatsApp, LinkedIn, or open native share drawer!</p>
 
-            <div className="tweet-preview-box">
-              <p className="tweet-preview-text">{getTweetDraftText()}</p>
-            </div>
-
-            {tweetCopied && <div className="status-toast status-toast--success">✓ Tweet text copied to clipboard!</div>}
-
-            <div className="share-modal-actions">
+            {/* Primary Feature: X (Twitter) Post */}
+            <div className="share-hero-box">
+              <div className="share-hero-badge">FEATURED // 𝕏 TWITTER</div>
+              <div className="tweet-preview-box">
+                <p className="tweet-preview-text">{getTweetDraftText()}</p>
+              </div>
               <button
                 type="button"
-                className="btn btn--ghost"
-                onClick={handleCopyTweetText}
-              >
-                📋 Copy Text
-              </button>
-
-              <button
-                type="button"
-                className="btn btn--primary glow-pulse"
+                className="btn btn--primary btn--full glow-pulse"
                 onClick={handleLaunchXIntent}
                 disabled={isSharing}
               >
-                {isSharing ? "Publishing..." : "🚀 Launch 𝕏 Tweet"}
+                {isSharing ? "Publishing..." : "𝕏 Post to Twitter / X ↗"}
               </button>
             </div>
+
+            {/* Native Device Share Sheet (WhatsApp, IG Stories, iMessage, AirDrop) */}
+            {typeof navigator !== "undefined" && (
+              <button
+                type="button"
+                className="btn btn--secondary btn--full"
+                style={{ marginTop: "var(--space-3)" }}
+                onClick={handleNativeShareFile}
+              >
+                📲 Share Image File to Any App (WhatsApp, IG, iMessage)
+              </button>
+            )}
+
+            {/* Multi-Platform Apps Grid */}
+            <div className="share-apps-grid" style={{ marginTop: "var(--space-4)" }}>
+              <button
+                type="button"
+                className="share-app-btn share-app-btn--whatsapp"
+                onClick={handleLaunchWhatsApp}
+              >
+                💬 WhatsApp
+              </button>
+
+              <button
+                type="button"
+                className="share-app-btn share-app-btn--linkedin"
+                onClick={handleLaunchLinkedIn}
+              >
+                💼 LinkedIn
+              </button>
+
+              <button
+                type="button"
+                className="share-app-btn share-app-btn--telegram"
+                onClick={handleLaunchTelegram}
+              >
+                ✈️ Telegram
+              </button>
+
+              <button
+                type="button"
+                className="share-app-btn share-app-btn--copy"
+                onClick={handleCopyTweetText}
+              >
+                {tweetCopied ? "✓ Copied" : "📋 Copy Link & Text"}
+              </button>
+            </div>
+
+            {tweetCopied && <div className="status-toast status-toast--success" style={{ marginTop: "var(--space-3)" }}>✓ Post text & link copied to clipboard!</div>}
           </div>
         </div>
       )}
     </div>
   );
 }
+
 

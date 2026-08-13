@@ -2166,9 +2166,9 @@ a { color: inherit; }
   font-weight: bold;
 }
 
-/* Feature 5: X / Twitter Share Modal */
+/* Feature 5: Multi-Platform Share Modal */
 .share-modal {
-  width: 540px;
+  width: 560px;
   max-width: 95vw;
 }
 .share-modal__title {
@@ -2183,12 +2183,28 @@ a { color: inherit; }
   color: var(--off-white-dim);
   margin-bottom: var(--space-4);
 }
-.tweet-preview-box {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(245, 211, 0, 0.3);
+
+.share-hero-box {
+  background: rgba(244, 217, 12, 0.04);
+  border: 1px solid rgba(244, 217, 12, 0.3);
   padding: var(--space-4);
   border-radius: 4px;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
+  position: relative;
+}
+.share-hero-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--yellow-primary);
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-2);
+}
+.tweet-preview-box {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(243, 236, 216, 0.15);
+  padding: var(--space-3);
+  border-radius: 3px;
+  margin-bottom: var(--space-3);
   white-space: pre-wrap;
 }
 .tweet-preview-text {
@@ -2197,11 +2213,54 @@ a { color: inherit; }
   color: var(--off-white);
   line-height: 1.5;
 }
-.share-modal-actions {
+
+.share-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+.share-app-btn {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  padding: var(--space-3);
+  background: rgba(243, 236, 216, 0.04);
+  color: var(--off-white);
+  border: 1px solid rgba(243, 236, 216, 0.18);
+  border-radius: 3px;
+  cursor: pointer;
   display: flex;
-  gap: var(--space-3);
-  justify-content: flex-end;
-  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  transition: all 0.25s var(--ease-cinematic);
+}
+.share-app-btn:hover {
+  transform: translateY(-2px);
+}
+.share-app-btn--whatsapp:hover {
+  background: #25D366;
+  color: #000;
+  border-color: #25D366;
+  font-weight: bold;
+}
+.share-app-btn--linkedin:hover {
+  background: #0A66C2;
+  color: #fff;
+  border-color: #0A66C2;
+  font-weight: bold;
+}
+.share-app-btn--telegram:hover {
+  background: #229ED9;
+  color: #fff;
+  border-color: #229ED9;
+  font-weight: bold;
+}
+.share-app-btn--copy:hover {
+  background: var(--yellow-primary);
+  color: var(--ink-dark);
+  border-color: var(--yellow-primary);
+  font-weight: bold;
 }
 
 @keyframes shimmer {

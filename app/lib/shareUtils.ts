@@ -78,9 +78,20 @@ export function decodeShareId(shareId: string): { url: string; mode: string } | 
 }
 
 /**
- * Build the X intent URL with pre-filled text and share link
+ * Sanitize and get a clean share URL (avoids exposing browser memory blob: URLs)
+ */
+export function sanitizeShareUrl(sharePageUrl: string): string {
+  if (!sharePageUrl || sharePageUrl.includes("blob:") || sharePageUrl.includes("eyJ1cmwiOiJibG9i")) {
+    return getBaseUrl();
+  }
+  return sharePageUrl;
+}
+
+/**
+ * Build the X (Twitter) intent URL with pre-filled text and clean share link
  */
 export function buildXIntentUrl(sharePageUrl: string, mode: "frame" | "card" | "team"): string {
+  const cleanUrl = sanitizeShareUrl(sharePageUrl);
   const captions = mode === "frame"
     ? [
         "Just got my HH Goa 2026 frame! 🌴🔧",
@@ -103,13 +114,38 @@ export function buildXIntentUrl(sharePageUrl: string, mode: "frame" | "card" | "
       ];
 
   const caption = captions[Math.floor(Math.random() * captions.length)];
-  const text = `${caption} #FrameInGoa`;
+  const text = `${caption} #HHGoa2026 #FrameInGoa`;
 
   const intentUrl = new URL("https://twitter.com/intent/tweet");
   intentUrl.searchParams.set("text", text);
-  intentUrl.searchParams.set("url", sharePageUrl);
+  intentUrl.searchParams.set("url", cleanUrl);
 
   return intentUrl.toString();
+}
+
+/**
+ * Build WhatsApp share URL
+ */
+export function buildWhatsAppIntentUrl(text: string, sharePageUrl: string): string {
+  const cleanUrl = sanitizeShareUrl(sharePageUrl);
+  const fullText = `${text}\n${cleanUrl}`;
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`;
+}
+
+/**
+ * Build LinkedIn share URL
+ */
+export function buildLinkedInIntentUrl(sharePageUrl: string): string {
+  const cleanUrl = sanitizeShareUrl(sharePageUrl);
+  return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(cleanUrl)}`;
+}
+
+/**
+ * Build Telegram share URL
+ */
+export function buildTelegramIntentUrl(text: string, sharePageUrl: string): string {
+  const cleanUrl = sanitizeShareUrl(sharePageUrl);
+  return `https://t.me/share/url?url=${encodeURIComponent(cleanUrl)}&text=${encodeURIComponent(text)}`;
 }
 
 /**
@@ -121,3 +157,4 @@ export function getBaseUrl(): string {
   }
   return process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 }
+
