@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { generateBuilderTitle } from "../lib/builderTitles";
-import { playReelTickSound } from "../lib/audioUtils";
+import { playReelTickSound, playClickSound } from "../lib/audioUtils";
 
 interface IdCardFormProps {
   mode: string;
@@ -17,6 +17,19 @@ interface IdCardFormProps {
   teamName: string;
   setTeamName: (v: string) => void;
 }
+
+const TECH_CHIPS = [
+  "Solana",
+  "Rust",
+  "AI/LLMs",
+  "Next.js",
+  "TypeScript",
+  "ZK Proofs",
+  "Move",
+  "Python",
+  "React",
+  "Web3",
+];
 
 export default function IdCardForm({
   mode,
@@ -60,6 +73,20 @@ export default function IdCardForm({
     }, 60);
 
     rollTimerRef.current = spinInterval;
+  };
+
+  const handleToggleTechChip = (tech: string) => {
+    playClickSound();
+    let currentTechs = role
+      ? role.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    if (currentTechs.includes(tech)) {
+      currentTechs = currentTechs.filter((t) => t !== tech);
+    } else {
+      currentTechs.push(tech);
+    }
+    setRole(currentTechs.join(", "));
   };
 
   useEffect(() => {
@@ -136,23 +163,47 @@ export default function IdCardForm({
             </div>
           </div>
 
-          {/* Role Input */}
+          {/* Role / Tech Stack Input & Quick Chips */}
           <div className="id-form__group" style={{ marginTop: "var(--space-4)" }}>
-            <label className="id-form__label" htmlFor="builder-role">
-              Role
-            </label>
+            <div className="label-with-hint">
+              <label className="id-form__label" htmlFor="builder-role">
+                Role & Tech Stack
+              </label>
+              <span className="id-form__hint">Tap chips to add</span>
+            </div>
             <div className="input-wrap">
               <input
                 id="builder-role"
                 className="id-form__input"
                 style={{ paddingLeft: "var(--space-3)" }}
                 type="text"
-                placeholder="e.g. Developer, Founder, etc."
+                placeholder="e.g. Solana, Rust, Fullstack"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                maxLength={35}
+                maxLength={45}
                 autoComplete="off"
               />
+            </div>
+
+            {/* 1-Click Tech Stack Chips */}
+            <div className="tech-chips-grid" style={{ marginTop: "var(--space-2)" }}>
+              {TECH_CHIPS.map((tech) => {
+                const isActive = role
+                  .split(",")
+                  .map((s) => s.trim())
+                  .includes(tech);
+                return (
+                  <button
+                    key={tech}
+                    type="button"
+                    className={`tech-chip ${isActive ? "tech-chip--active" : ""}`}
+                    onClick={() => handleToggleTechChip(tech)}
+                  >
+                    <span>{isActive ? "✓" : "+"}</span>
+                    <span>{tech}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -184,3 +235,4 @@ export default function IdCardForm({
     </div>
   );
 }
+
