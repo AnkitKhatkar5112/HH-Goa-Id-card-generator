@@ -527,7 +527,7 @@ export async function renderIdCard(
 
   // 3. Asymmetric Photo Block
   const photoW = 760;
-  const photoH = 720;
+  const photoH = 790;
   const photoX = 60;
   const photoY = 110;
 
@@ -558,7 +558,7 @@ export async function renderIdCard(
   ctx.textAlign = "right";
 
   ctx.fillStyle = themeColors.white;
-  let nameFontSize = 100;
+  let nameFontSize = 88;
   ctx.font = `900 ${nameFontSize}px 'Bodoni Moda', serif`;
 
   while (ctx.measureText(displayRealName).width > BASE_W - 120 && nameFontSize > 36) {
@@ -571,18 +571,18 @@ export async function renderIdCard(
   ctx.shadowOffsetY = 6;
   ctx.shadowBlur = 0;
 
-  const nameY = photoY + photoH + 90; // 110 + 720 + 90 = 920px
+  const nameY = photoY + photoH + 82; // 110 + 790 + 82 = 982px
   ctx.fillText(displayRealName, BASE_W - 60, nameY);
   ctx.shadowColor = "transparent";
 
   // Role and Title Technical Blocks
   const textLeft = photoX;
-  const roleY = nameY + 55; // ~975px
+  const roleY = nameY + 50; // 1032px
 
   ctx.textAlign = "left";
 
   if (role) {
-    let roleFontSize = 40;
+    let roleFontSize = 38;
     const roleText = role.toUpperCase();
     ctx.font = `800 ${roleFontSize}px 'Space Grotesk', sans-serif`;
 
@@ -596,7 +596,7 @@ export async function renderIdCard(
   }
 
   if (builderTitle) {
-    const titleY = role ? roleY + 50 : roleY;
+    const titleY = role ? roleY + 46 : roleY; // ~1078px
     let titleFontSize = 36;
     const titleText = `< ${builderTitle} >`;
     ctx.font = `${titleFontSize}px 'VT323', monospace`;
